@@ -18,37 +18,10 @@ const UserTable = () => {
 
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
-	let respuesta = '[ { "id": 1, "name": "admin", "lastname": "admin", "email": "admin@admin.com", "password": "$2a$10$KMTPnwuxgSoPIrRTPaNOS.j8ftVB.nbmtvEwUYCux7t.K99ewoPiS", "rol": "ADMIN", "obrasFavoritas": [ { "id": 1, "nombre": "Maria Elena Haydee", "fechaCreacion": "1111-11-11", "descripcion": "1111", "precioRenta": 11111, "disponibilidad": true, "tamano": "MEDIANO", "tecnicaObra": { "id": 1, "nombre": "Óleo sobre lienzo" }, "movimientoArtistico": { "id": 1, "nombre": "Movimiento", "descripcion": "PRUEBA", "imagen": { "id": 1, "nombre": "30WELL-ART-BRAIN-videoSixteenByNineJumbo1600", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734015477/artxp_d6dd427f-a4bf-4c85-891f-636b402504e0.jpg", "imagenId": "artxp_d6dd427f-a4bf-4c85-891f-636b402504e0" } }, "artista": { "id": 2, "nombre": "El Bosco" }, "imagenes": [ { "id": 2, "nombre": "PNG 800", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734017837/artxp_49a3e311-2fba-465f-baa5-f95360873c2a.png", "imagenId": "artxp_49a3e311-2fba-465f-baa5-f95360873c2a" } ] }, { "id": 2, "nombre": "Sifar", "fechaCreacion": "1111-11-11", "descripcion": "111", "precioRenta": 1111, "disponibilidad": true, "tamano": "MEDIANO", "tecnicaObra": { "id": 2, "nombre": "Óleo sobre tabla" }, "movimientoArtistico": { "id": 1, "nombre": "Movimiento", "descripcion": "PRUEBA", "imagen": { "id": 1, "nombre": "30WELL-ART-BRAIN-videoSixteenByNineJumbo1600", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734015477/artxp_d6dd427f-a4bf-4c85-891f-636b402504e0.jpg", "imagenId": "artxp_d6dd427f-a4bf-4c85-891f-636b402504e0" } }, "artista": { "id": 2, "nombre": "El Bosco" }, "imagenes": [ { "id": 3, "nombre": "images", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734019324/artxp_0bd3afc5-6cf8-44ed-80ae-6561ff28130a.jpg", "imagenId": "artxp_0bd3afc5-6cf8-44ed-80ae-6561ff28130a" } ] } ]{timestamp:2, error:"ok"}';
-
-	console.log(respuesta);
-	
-
-	const users = (() => {
-		if (Array.isArray(respuesta)) {
-			// Caso 1: La respuesta es un array (puede estar vacío o con elementos)
-			console.log("caso bueno");
-			return state.users;
-		} else if (respuesta) {
-			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
-			respuesta = respuesta.match(/\[.*\](?=\s*{)/s)[0];
-			console.log("caso malo");
-			console.log("respuesta cm", respuesta);
-
-			return respuesta;
-		} else {
-			// Si no es ninguno de los casos anteriores, retornar un array vacío
-			return [];
-		}
-	})();
-	console.log('users ', typeof users);
-
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = Array.isArray(users)
-		? users.slice(indexOfFirstItem, indexOfLastItem)
-		: [];
-
-	const totalPages = Math.ceil(users.length / itemsPerPage);
+	const currentItems = state.users.slice(indexOfFirstItem, indexOfLastItem);
+	const totalPages = Math.ceil(state.users.length / itemsPerPage);
 
 	const loggedUserRole = state.loggedUser?.rol[0]?.authority;
 	//state.loggedUser.rol o state.loggedUser?.rol[0]?.authority
@@ -57,7 +30,7 @@ const UserTable = () => {
 		console.log(state.loggedUser); //no trae id
 
 		// Solo permitir editar Admin si el rol del usuario actual no es "COLAB" o si el usuario a editar no es "ADMIN"
-		if (loggedUserRole !== "COLAB" || user.rol !== "ADMIN") {
+			if (loggedUserRole !== "COLAB" || user.rol !== "ADMIN") {
 			setEditingItem(user);
 		} else {
 			setErrorMessage(
@@ -67,36 +40,35 @@ const UserTable = () => {
 	};
 
 	const handleDelete = (id) => {
-		const userToDelete = users.find((user) => user.id === id);
-		if (userToDelete && userToDelete.rol === "ADMIN") {
-			setErrorMessage("No se puede eliminar un usuario con rol de ADMIN");
-		} else {
-			setDeletingItem(id); // Guardar el ID del usuario a eliminar
-			setErrorMessage(""); // Limpiar el mensaje de error si no es un ADMIN
-		}
+		const userToDelete = state.users.find(user => user.id === id);
+    if (userToDelete && userToDelete.rol === "ADMIN") {
+        setErrorMessage("No se puede eliminar un usuario con rol de ADMIN");
+    } else {
+        setDeletingItem(id); // Guardar el ID del usuario a eliminar
+        setErrorMessage(""); // Limpiar el mensaje de error si no es un ADMIN
+    }
 	};
 
 	const confirmDelete = async () => {
-		if (loggedUserRole !== "ADMIN") {
+
+		if(loggedUserRole !== "ADMIN"){
 			setErrorMessage("No tienes permisos para eliminar usuarios");
 			setDeletingItem(null); // Cerrar el modal de confirmación de cancelación
 			return;
-		}
+		} 
 
 		try {
-			await userService.deleteUserById(deletingItem);
+			await userService.deleteUserById(deletingItem)
 			dispatch({ type: "DELETE_USER", payload: { id: deletingItem } });
 			setSuccessMessage("El usuario se ha eliminado correctamente");
-			setDeletingItem(null);
+			setDeletingItem(null);			
 		} catch (error) {
 			console.error("Error al eliminar el usuario:", error);
-			setErrorMessage(
-				"Ocurrió un error al eliminar el usuario. Por favor, intenta de nuevo."
-			);
-		}
+			setErrorMessage("Ocurrió un error al eliminar el usuario. Por favor, intenta de nuevo.");
+		}		
 	};
 
-	const handleSaveEdit = async (updatedUser) => {
+	const handleSaveEdit = async(updatedUser) => {
 		// Sólo enviamos los datos que pide Backend, no el objeto completo
 		const updatedUserData = {
 			id: updatedUser.id,
@@ -105,18 +77,18 @@ const UserTable = () => {
 			email: updatedUser.email,
 			password: updatedUser.password,
 			rol: updatedUser.rol,
-		};
+	};
 		console.log("updated user");
 		console.log(updatedUserData);
-
-		await userService.updateUser(updatedUserData);
+		
+		await userService.updateUser(updatedUserData)
 		dispatch({ type: "UPDATE_USER", payload: updatedUserData });
 		setSuccessMessage("Usuario actualizado con éxito");
 		setEditingItem(null);
 	};
 
-	const handleRoleChange = async (id, newRole) => {
-		const updatedUser = users.find((user) => user.id === id);
+	const handleRoleChange = async(id, newRole) => {
+		const updatedUser = state.users.find((user) => user.id === id);
 		const updatedUserData = {
 			id: updatedUser.id,
 			name: updatedUser.name,
@@ -124,7 +96,7 @@ const UserTable = () => {
 			email: updatedUser.email,
 			password: updatedUser.password,
 			rol: updatedUser.rol,
-		};
+	};
 		if (updatedUser) {
 			updatedUserData.rol = newRole;
 			try {
@@ -132,9 +104,7 @@ const UserTable = () => {
 				dispatch({ type: "UPDATE_USER", payload: updatedUserData });
 			} catch (error) {
 				console.error("Error al actualizar el rol:", error);
-				setErrorMessage(
-					"Ocurrió un error al actualizar el rol. Intenta nuevamente."
-				);
+			setErrorMessage("Ocurrió un error al actualizar el rol. Intenta nuevamente.");
 			}
 		}
 	};
@@ -243,32 +213,29 @@ const UserTable = () => {
 								</label>
 
 								{/* Solo mostrar "Colaborador" y "Usuario" */}
-								{editingItem.rol === "ADMIN" ? (
-									// Mostrar el rol como texto si el rol del usuario es ADMIN
-									<span>Administrador</span>
-								) : (
-									<select
-										id="rol"
-										value={editingItem.rol}
-										onChange={(e) =>
-											setEditingItem({
-												...editingItem,
-												rol: e.target.value,
-											})
-										}
-										className="w-full p-2 border border-gray-300 rounded"
-										disabled={
-											editingItem.rol === "COLAB" &&
-											editingItem.email ===
-												state.loggedUser.email
-										}
-									>
-										{/* Sólo puede haber un admin y no se pueden asignar más */}
-										<option value="COLAB">
-											Colaborador
-										</option>
-										<option value="USER">Usuario</option>
-									</select>
+								{ editingItem.rol === "ADMIN" ? (
+										// Mostrar el rol como texto si el rol del usuario es ADMIN
+										<span>Administrador</span>
+									) : (
+								<select 
+									id="rol"
+									value={editingItem.rol}
+									onChange={(e) =>
+										setEditingItem({
+											...editingItem,
+											rol: e.target.value,
+										})
+									}
+									className="w-full p-2 border border-gray-300 rounded"
+									disabled={
+									
+										editingItem.rol === "COLAB" && editingItem.email === state.loggedUser.email
+									}
+								>										
+									{/* Sólo puede haber un admin y no se pueden asignar más */}
+									<option value="COLAB">Colaborador</option>
+									<option value="USER">Usuario</option>
+								</select>
 								)}
 							</div>
 							<div className="flex justify-between">
@@ -330,7 +297,7 @@ const UserTable = () => {
 													"Correo no disponible"}
 											</td>
 											<td className="whitespace-nowrap px-4 py-2 text-gray-700 text-left">
-												{user.rol === "ADMIN" ? (
+												{ user.rol === "ADMIN" ? (
 													// Mostrar el rol como texto si el rol del usuario es ADMIN
 													<span>Administrador</span>
 												) : (
@@ -344,16 +311,8 @@ const UserTable = () => {
 														}
 														className="px-2 py-1 rounded border border-gray-300"
 														disabled={
-															(loggedUserRole ===
-																"COLAB" &&
-																user.rol ===
-																	"ADMIN") ||
-															(loggedUserRole ===
-																"COLAB" &&
-																user.email ===
-																	state
-																		.loggedUser
-																		.email)
+															loggedUserRole === "COLAB" && user.rol === "ADMIN" ||
+															loggedUserRole === "COLAB" && user.email === state.loggedUser.email
 														}
 													>
 														{/* {loggedUserRole !==
@@ -377,15 +336,13 @@ const UserTable = () => {
 														handleEdit(user)
 													}
 													className={`text-lg font-bold p-3 border-2 rounded ${
-														loggedUserRole ===
-															"COLAB" &&
+														loggedUserRole === "COLAB" &&
 														user.rol === "ADMIN"
 															? "text-gray-400 border-gray-400 cursor-not-allowed"
 															: "text-blue-600 border-blue-600 hover:bg-blue-600/75 hover:text-white hover:border-blue-400"
 													}`}
 													disabled={
-														loggedUserRole ===
-															"COLAB" &&
+														loggedUserRole === "COLAB" &&
 														user.rol === "ADMIN"
 													}
 												>
@@ -395,7 +352,7 @@ const UserTable = () => {
 													onClick={() =>
 														handleDelete(user.id)
 													}
-													className={`text-lg font-bold p-3 border-2 rounded ${
+													className={`text-lg font-bold p-3 border-2 rounded ${			
 														user.rol === "ADMIN"
 															? "text-gray-400 border-gray-400 cursor-not-allowed"
 															: "text-red-600 border-red-600 hover:bg-red-600/75 hover:text-white hover:border-red-400"
