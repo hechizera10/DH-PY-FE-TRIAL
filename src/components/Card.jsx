@@ -18,7 +18,7 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
     // Verificar si el tiempo transcurrido desde la última solicitud es suficiente
     const currentTime = Date.now();
     if (currentTime - lastRequestTime < 5000) {  // 5000 ms = 5 segundos
-      setErrorMessage("Por favor, espera unos segundos antes de agregar otro favorito.");
+     console.log("Por favor, espera unos segundos antes de agregar otro favorito.");
       setTimeout(() => setErrorMessage(""), 3000);
       return;
     }
