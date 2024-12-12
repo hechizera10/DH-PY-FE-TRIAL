@@ -18,10 +18,26 @@ const UserTable = () => {
 
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
+
+
+	
+	const users = () => {
+		if (Array.isArray(state.users)) {
+		  // Caso 1: respuesta es un array (puede estar vacío o con elementos)
+		  return state.users;
+		} else if (Array.isArray(state.users[0])) {
+		  // Caso 2: la respuesta es una concatenación de un array vacío seguido de un objeto
+		  return state.users[0];
+		} else {
+		  // Si no es ninguno de los casos anteriores, retornar un array vacío
+		  return [];
+		}
+	  };
+
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = state.users.slice(indexOfFirstItem, indexOfLastItem);
-	const totalPages = Math.ceil(state.users.length / itemsPerPage);
+	const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
+	const totalPages = Math.ceil(users.length / itemsPerPage);
 
 	const loggedUserRole = state.loggedUser?.rol[0]?.authority;
 	//state.loggedUser.rol o state.loggedUser?.rol[0]?.authority
@@ -40,7 +56,7 @@ const UserTable = () => {
 	};
 
 	const handleDelete = (id) => {
-		const userToDelete = state.users.find(user => user.id === id);
+		const userToDelete = users.find(user => user.id === id);
     if (userToDelete && userToDelete.rol === "ADMIN") {
         setErrorMessage("No se puede eliminar un usuario con rol de ADMIN");
     } else {
@@ -88,7 +104,7 @@ const UserTable = () => {
 	};
 
 	const handleRoleChange = async(id, newRole) => {
-		const updatedUser = state.users.find((user) => user.id === id);
+		const updatedUser = users.find((user) => user.id === id);
 		const updatedUserData = {
 			id: updatedUser.id,
 			name: updatedUser.name,

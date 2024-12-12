@@ -1,4 +1,4 @@
-import React, { useOptimistic,useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { FaHeart } from "react-icons/fa"; // Ícono de corazón
 import { useContextGlobal } from "../utils/global.context";
