@@ -31,7 +31,7 @@ const UserTable = () => {
 		} else if (respuesta) {
 			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
 			respuesta = respuesta.match(/\[.*\](?=\s*{)/s)[0];
-			JSON.parse(respuesta)
+			eval(respuesta)
 			console.log("caso malo");
 			console.log(respuesta);
 			return respuesta;
