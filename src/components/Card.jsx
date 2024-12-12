@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useOptimistic, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { FaHeart } from "react-icons/fa";
 import { useContextGlobal } from "../utils/global.context";
@@ -9,8 +9,8 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
     const { state, dispatch } = useContextGlobal();
     const [errorMessage, setErrorMessage] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [localIsFavorite, setLocalIsFavorite] = useState(initialIsFavorite);
     const lastRequestTimeRef = useRef(0); // Ref para almacenar el tiempo del último POST
-    const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
 
     const toggleFavorite = useCallback(
         async (e) => {
@@ -30,14 +30,13 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
 
             lastRequestTimeRef.current = currentTime;
 
-            // Optimistic update
-            setIsFavorite(prevFavorite => !prevFavorite);
+            // Actualización optimista
+            const isCurrentlyInFavorites = state.favorites?.some(
+                (fav) => fav.id === producto.id
+            );
+            setLocalIsFavorite(!isCurrentlyInFavorites);
 
             try {
-                const isCurrentlyInFavorites = state.favorites?.some(
-                    (fav) => fav.id === producto.id
-                );
-
                 if (isCurrentlyInFavorites) {
                     await favoritosService.eliminarFavorito(producto.id);
                     dispatch({
@@ -58,14 +57,14 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
                 );
                 setTimeout(() => setErrorMessage(""), 3000);
 
-                // Revert optimistic update if there's an error
-                setIsFavorite(prevFavorite => !prevFavorite);
+                // Revertir cambios optimistas si hay un error
+                setLocalIsFavorite(isCurrentlyInFavorites);
             }
         },
         [state.loggedUser, state.favorites, producto, dispatch]
     );
 
-    const displayFavorite = state.loggedUser ? isFavorite : false;
+    const displayFavorite = state.loggedUser ? localIsFavorite : false;
 
     if (!producto) {
         return (
@@ -77,7 +76,6 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
         );
     }
 
-    // Rest of the component remains the same as in the original code
     const {
         nombre,
         img,
@@ -101,25 +99,72 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
                 className="group relative w-full hover:cursor-pointer"
                 onClick={() => setIsModalOpen(true)}
             >
-                {/* ... rest of the original render method ... */}
-                <button
-                    className={`absolute top-2 right-2 text-white p-2 rounded-full ${
-                        displayFavorite ? "bg-black" : "bg-gray-500"
-                    } hover:opacity-80 transition-opacity`}
-                    onClick={toggleFavorite}
-                    aria-label={
-                        displayFavorite
-                            ? "Quitar de favoritos"
-                            : "Agregar a favoritos"
-                    }
-                    disabled={!state.loggedUser}
-                >
-                    <FaHeart
-                        size={20}
-                        color={displayFavorite ? "#EFB810" : "black"}
-                    />
-                </button>
-                {/* ... rest of the original render method ... */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-b from-transparent via-black/20 to-black/80 opacity-0" />
+                <div className="relative overflow-hidden h-100 rounded-xl bg-white backdrop-blur-sm text-black">
+                    <div className="relative">
+                        <img
+                            className="h-48 w-full object-cover"
+                            src={
+                                producto.imagenes?.find((imagen) =>
+                                    imagen.nombre
+                                        .toLowerCase()
+                                        .startsWith("principal")
+                                )?.url || producto.imagenes?.[0]?.url
+                            }
+                            alt={producto.nombre}
+                            loading="lazy"
+                        />
+                        <button
+                            className={`absolute top-2 right-2 text-white p-2 rounded-full ${
+                                displayFavorite ? "bg-black" : "bg-gray-500"
+                            } hover:opacity-80 transition-opacity`}
+                            onClick={toggleFavorite}
+                            aria-label={
+                                displayFavorite
+                                    ? "Quitar de favoritos"
+                                    : "Agregar a favoritos"
+                            }
+                            disabled={!state.loggedUser}
+                        >
+                            <FaHeart
+                                size={20}
+                                color={displayFavorite ? "#EFB810" : "black"}
+                            />
+                        </button>
+                    </div>
+                    <div className="p-4 bg-white flex flex-col h-48 text-black">
+                        <h3 className="text-2xl font-semibold text-gray-800 mb-2">
+                            {nombre}
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {descripcion}
+                        </p>
+                        <div className="flex justify-between items-center mb-4">
+                            <span className="text-lg font-bold text-primary">
+                                ${precioRenta}
+                            </span>
+                            <span className="bg-amber-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium">
+                                {tamano}
+                            </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                            <span className="bg-amber-50 text-black px-3 py-1 rounded-full text-xs font-medium">
+                                {tecnicaObra.nombre}
+                            </span>
+                            <span className="bg-amber-50 text-black px-3 py-1 rounded-full text-xs font-medium">
+                                {movimientoArtistico.nombre}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="bg-gray-50 px-4 py-3">
+                        <div className="flex justify-between items-center text-xs text-gray-500">
+                            <span className="font-medium">
+                                {artista.nombre}
+                            </span>
+                            <span>{fechaCreacion}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Modal
