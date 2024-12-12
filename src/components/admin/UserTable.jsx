@@ -19,6 +19,7 @@ const UserTable = () => {
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
 	const respuesta = state.users + {prueba: "hola"};
+	console.log(respuesta);
 
 
 	const users = (() => {
