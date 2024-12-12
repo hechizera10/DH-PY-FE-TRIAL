@@ -33,10 +33,12 @@ const UserTable = () => {
 		  return [];
 		}
 	  };
+	  console.log(typeof users);
 
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = users?.slice(indexOfFirstItem, indexOfLastItem);
+	const currentItems = Array.isArray(users) ? users.slice(indexOfFirstItem, indexOfLastItem) : [];
+	
 	const totalPages = Math.ceil(users.length / itemsPerPage);
 
 	const loggedUserRole = state.loggedUser?.rol[0]?.authority;
