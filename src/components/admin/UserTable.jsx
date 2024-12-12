@@ -20,7 +20,7 @@ const UserTable = () => {
 
 
 
-	
+
 	const users = () => {
 		if (Array.isArray(state.users)) {
 		  // Caso 1: respuesta es un array (puede estar vacío o con elementos)
@@ -36,7 +36,7 @@ const UserTable = () => {
 
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
+	const currentItems = users?.slice(indexOfFirstItem, indexOfLastItem);
 	const totalPages = Math.ceil(users.length / itemsPerPage);
 
 	const loggedUserRole = state.loggedUser?.rol[0]?.authority;
