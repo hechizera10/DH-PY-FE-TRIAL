@@ -18,27 +18,26 @@ const UserTable = () => {
 
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
-
-
-
-	const users = () => {
+	const users = (() => {
 		if (Array.isArray(state.users)) {
-		  // Caso 1: respuesta es un array (puede estar vacío o con elementos)
-		  return state.users;
+			// Caso 1: La respuesta es un array (puede estar vacío o con elementos)
+			return state.users;
 		} else if (Array.isArray(state.users[0])) {
-		  // Caso 2: la respuesta es una concatenación de un array vacío seguido de un objeto
-		  return state.users[0];
+			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
+			return state.users[0];
 		} else {
-		  // Si no es ninguno de los casos anteriores, retornar un array vacío
-		  return [];
+			// Si no es ninguno de los casos anteriores, retornar un array vacío
+			return [];
 		}
-	  };
-	  console.log(typeof users);
+	})();
+	console.log(typeof users);
 
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-	const currentItems = Array.isArray(users) ? users.slice(indexOfFirstItem, indexOfLastItem) : [];
-	
+	const currentItems = Array.isArray(users)
+		? users.slice(indexOfFirstItem, indexOfLastItem)
+		: [];
+
 	const totalPages = Math.ceil(users.length / itemsPerPage);
 
 	const loggedUserRole = state.loggedUser?.rol[0]?.authority;
@@ -48,7 +47,7 @@ const UserTable = () => {
 		console.log(state.loggedUser); //no trae id
 
 		// Solo permitir editar Admin si el rol del usuario actual no es "COLAB" o si el usuario a editar no es "ADMIN"
-			if (loggedUserRole !== "COLAB" || user.rol !== "ADMIN") {
+		if (loggedUserRole !== "COLAB" || user.rol !== "ADMIN") {
 			setEditingItem(user);
 		} else {
 			setErrorMessage(
@@ -58,35 +57,36 @@ const UserTable = () => {
 	};
 
 	const handleDelete = (id) => {
-		const userToDelete = users.find(user => user.id === id);
-    if (userToDelete && userToDelete.rol === "ADMIN") {
-        setErrorMessage("No se puede eliminar un usuario con rol de ADMIN");
-    } else {
-        setDeletingItem(id); // Guardar el ID del usuario a eliminar
-        setErrorMessage(""); // Limpiar el mensaje de error si no es un ADMIN
-    }
+		const userToDelete = users.find((user) => user.id === id);
+		if (userToDelete && userToDelete.rol === "ADMIN") {
+			setErrorMessage("No se puede eliminar un usuario con rol de ADMIN");
+		} else {
+			setDeletingItem(id); // Guardar el ID del usuario a eliminar
+			setErrorMessage(""); // Limpiar el mensaje de error si no es un ADMIN
+		}
 	};
 
 	const confirmDelete = async () => {
-
-		if(loggedUserRole !== "ADMIN"){
+		if (loggedUserRole !== "ADMIN") {
 			setErrorMessage("No tienes permisos para eliminar usuarios");
 			setDeletingItem(null); // Cerrar el modal de confirmación de cancelación
 			return;
-		} 
+		}
 
 		try {
-			await userService.deleteUserById(deletingItem)
+			await userService.deleteUserById(deletingItem);
 			dispatch({ type: "DELETE_USER", payload: { id: deletingItem } });
 			setSuccessMessage("El usuario se ha eliminado correctamente");
-			setDeletingItem(null);			
+			setDeletingItem(null);
 		} catch (error) {
 			console.error("Error al eliminar el usuario:", error);
-			setErrorMessage("Ocurrió un error al eliminar el usuario. Por favor, intenta de nuevo.");
-		}		
+			setErrorMessage(
+				"Ocurrió un error al eliminar el usuario. Por favor, intenta de nuevo."
+			);
+		}
 	};
 
-	const handleSaveEdit = async(updatedUser) => {
+	const handleSaveEdit = async (updatedUser) => {
 		// Sólo enviamos los datos que pide Backend, no el objeto completo
 		const updatedUserData = {
 			id: updatedUser.id,
@@ -95,17 +95,17 @@ const UserTable = () => {
 			email: updatedUser.email,
 			password: updatedUser.password,
 			rol: updatedUser.rol,
-	};
+		};
 		console.log("updated user");
 		console.log(updatedUserData);
-		
-		await userService.updateUser(updatedUserData)
+
+		await userService.updateUser(updatedUserData);
 		dispatch({ type: "UPDATE_USER", payload: updatedUserData });
 		setSuccessMessage("Usuario actualizado con éxito");
 		setEditingItem(null);
 	};
 
-	const handleRoleChange = async(id, newRole) => {
+	const handleRoleChange = async (id, newRole) => {
 		const updatedUser = users.find((user) => user.id === id);
 		const updatedUserData = {
 			id: updatedUser.id,
@@ -114,7 +114,7 @@ const UserTable = () => {
 			email: updatedUser.email,
 			password: updatedUser.password,
 			rol: updatedUser.rol,
-	};
+		};
 		if (updatedUser) {
 			updatedUserData.rol = newRole;
 			try {
@@ -122,7 +122,9 @@ const UserTable = () => {
 				dispatch({ type: "UPDATE_USER", payload: updatedUserData });
 			} catch (error) {
 				console.error("Error al actualizar el rol:", error);
-			setErrorMessage("Ocurrió un error al actualizar el rol. Intenta nuevamente.");
+				setErrorMessage(
+					"Ocurrió un error al actualizar el rol. Intenta nuevamente."
+				);
 			}
 		}
 	};
@@ -231,29 +233,32 @@ const UserTable = () => {
 								</label>
 
 								{/* Solo mostrar "Colaborador" y "Usuario" */}
-								{ editingItem.rol === "ADMIN" ? (
-										// Mostrar el rol como texto si el rol del usuario es ADMIN
-										<span>Administrador</span>
-									) : (
-								<select 
-									id="rol"
-									value={editingItem.rol}
-									onChange={(e) =>
-										setEditingItem({
-											...editingItem,
-											rol: e.target.value,
-										})
-									}
-									className="w-full p-2 border border-gray-300 rounded"
-									disabled={
-									
-										editingItem.rol === "COLAB" && editingItem.email === state.loggedUser.email
-									}
-								>										
-									{/* Sólo puede haber un admin y no se pueden asignar más */}
-									<option value="COLAB">Colaborador</option>
-									<option value="USER">Usuario</option>
-								</select>
+								{editingItem.rol === "ADMIN" ? (
+									// Mostrar el rol como texto si el rol del usuario es ADMIN
+									<span>Administrador</span>
+								) : (
+									<select
+										id="rol"
+										value={editingItem.rol}
+										onChange={(e) =>
+											setEditingItem({
+												...editingItem,
+												rol: e.target.value,
+											})
+										}
+										className="w-full p-2 border border-gray-300 rounded"
+										disabled={
+											editingItem.rol === "COLAB" &&
+											editingItem.email ===
+												state.loggedUser.email
+										}
+									>
+										{/* Sólo puede haber un admin y no se pueden asignar más */}
+										<option value="COLAB">
+											Colaborador
+										</option>
+										<option value="USER">Usuario</option>
+									</select>
 								)}
 							</div>
 							<div className="flex justify-between">
@@ -315,7 +320,7 @@ const UserTable = () => {
 													"Correo no disponible"}
 											</td>
 											<td className="whitespace-nowrap px-4 py-2 text-gray-700 text-left">
-												{ user.rol === "ADMIN" ? (
+												{user.rol === "ADMIN" ? (
 													// Mostrar el rol como texto si el rol del usuario es ADMIN
 													<span>Administrador</span>
 												) : (
@@ -329,8 +334,16 @@ const UserTable = () => {
 														}
 														className="px-2 py-1 rounded border border-gray-300"
 														disabled={
-															loggedUserRole === "COLAB" && user.rol === "ADMIN" ||
-															loggedUserRole === "COLAB" && user.email === state.loggedUser.email
+															(loggedUserRole ===
+																"COLAB" &&
+																user.rol ===
+																	"ADMIN") ||
+															(loggedUserRole ===
+																"COLAB" &&
+																user.email ===
+																	state
+																		.loggedUser
+																		.email)
 														}
 													>
 														{/* {loggedUserRole !==
@@ -354,13 +367,15 @@ const UserTable = () => {
 														handleEdit(user)
 													}
 													className={`text-lg font-bold p-3 border-2 rounded ${
-														loggedUserRole === "COLAB" &&
+														loggedUserRole ===
+															"COLAB" &&
 														user.rol === "ADMIN"
 															? "text-gray-400 border-gray-400 cursor-not-allowed"
 															: "text-blue-600 border-blue-600 hover:bg-blue-600/75 hover:text-white hover:border-blue-400"
 													}`}
 													disabled={
-														loggedUserRole === "COLAB" &&
+														loggedUserRole ===
+															"COLAB" &&
 														user.rol === "ADMIN"
 													}
 												>
@@ -370,7 +385,7 @@ const UserTable = () => {
 													onClick={() =>
 														handleDelete(user.id)
 													}
-													className={`text-lg font-bold p-3 border-2 rounded ${			
+													className={`text-lg font-bold p-3 border-2 rounded ${
 														user.rol === "ADMIN"
 															? "text-gray-400 border-gray-400 cursor-not-allowed"
 															: "text-red-600 border-red-600 hover:bg-red-600/75 hover:text-white hover:border-red-400"
