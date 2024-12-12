@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FaHeart } from "react-icons/fa"; // Ícono de corazón
 import { useContextGlobal } from "../utils/global.context";
 import Modal from "./Modal";
-import { enqueueFavoriteAction } from "../utils/localStorageUtils";
+import { enqueueFavoriteAction } from "../utils/localStorage";
 
 const Card = ({ producto, isFavorite: initialIsFavorite }) => {
   const { state, dispatch } = useContextGlobal();
