@@ -4,16 +4,24 @@ import { FaHeart } from "react-icons/fa"; // Ícono de corazón
 import { useContextGlobal } from "../utils/global.context";
 import Modal from "./Modal";
 import { favoritosService } from "../api/favoritosService.js";
+
 const Card = ({ producto, isFavorite: initialIsFavorite }) => {
   const { state, dispatch } = useContextGlobal();
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-    // Mantener un estado local para el estado de favorito
   const [localIsFavorite, setLocalIsFavorite] = useState(initialIsFavorite);
+  const [lastRequestTime, setLastRequestTime] = useState(0); // Nuevo estado para controlar el tiempo de la última solicitud
 
-  // Memoizar la función toggleFavorite para evitar re-renders innecesarios
-  const toggleFavorite = useCallback(async(e) => {
+  const toggleFavorite = useCallback(async (e) => {
     e.stopPropagation();
+
+    // Verificar si el tiempo transcurrido desde la última solicitud es suficiente
+    const currentTime = Date.now();
+    if (currentTime - lastRequestTime < 5000) {  // 5000 ms = 5 segundos
+      setErrorMessage("Por favor, espera unos segundos antes de agregar otro favorito.");
+      setTimeout(() => setErrorMessage(""), 3000);
+      return;
+    }
 
     if (!state.loggedUser) {
       setErrorMessage("Debes estar logueado para guardar favoritos.");
@@ -36,18 +44,19 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
         dispatch({ type: "ADD_TO_FAVORITES", payload: producto });
         setLocalIsFavorite(true);
       }
+
+      // Actualizar el tiempo de la última solicitud
+      setLastRequestTime(currentTime);
     } catch (error) {
       console.error("Error al manejar favoritos:", error);
       setErrorMessage(error.message || "Error al actualizar favoritos");
       setTimeout(() => setErrorMessage(""), 3000);
     }
-  }, [state.loggedUser, state.favorites, producto, dispatch]);
+  }, [state.loggedUser, state.favorites, producto, dispatch, lastRequestTime]);
 
-
-  // Si no hay usuario logueado, el ícono de favoritos debe mostrarse como no marcado
   const displayFavorite = state.loggedUser ? localIsFavorite : false;
 
-  // Verificar que 'producto' exista
+  // Si no hay usuario logueado, el ícono de favoritos debe mostrarse como no marcado
   if (!producto) {
     return (
       <div className="relative overflow-hidden h-100 rounded-xl bg-white/10 backdrop-blur-sm border-dashed border-2 border-white-200 opacity-40">
@@ -58,7 +67,6 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
     );
   }
 
-  // Asegúrate de que las propiedades del producto existan
   const { nombre, img, descripcion, precioRenta, tamano, tecnicaObra, movimientoArtistico, artista, fechaCreacion } = producto;
 
   return (
@@ -83,13 +91,9 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
               loading="lazy"
             />
             <button
-              className={`absolute top-2 right-2 text-white p-2 rounded-full ${
-                displayFavorite ? "bg-black" : "bg-gray-500"
-              } hover:opacity-80 transition-opacity`}
+              className={`absolute top-2 right-2 text-white p-2 rounded-full ${displayFavorite ? "bg-black" : "bg-gray-500"}`}
               onClick={toggleFavorite}
-              aria-label={
-                displayFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
-              }
+              aria-label={displayFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
               disabled={!state.loggedUser}
             >
               <FaHeart size={20} color={displayFavorite ? "#EFB810" : "black"} />
@@ -137,11 +141,9 @@ const Card = ({ producto, isFavorite: initialIsFavorite }) => {
   );
 };
 
-// Definición de `propTypes`
 Card.propTypes = {
   producto: PropTypes.shape({
     nombre: PropTypes.string.isRequired,
-    //img: PropTypes.string.isRequired,
     descripcion: PropTypes.string.isRequired,
     precioRenta: PropTypes.number.isRequired,
     tamano: PropTypes.string.isRequired,
