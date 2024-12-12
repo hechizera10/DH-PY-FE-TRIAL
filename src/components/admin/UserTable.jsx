@@ -32,14 +32,15 @@ const UserTable = () => {
 			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
 			respuesta = respuesta.match(/\[.*\](?=\s*{)/s)[0];
 			console.log("caso malo");
-			console.log(respuesta);
+			console.log("respuesta cm", respuesta);
+
 			return respuesta;
 		} else {
 			// Si no es ninguno de los casos anteriores, retornar un array vacío
 			return [];
 		}
 	})();
-	console.log(typeof users);
+	console.log('users ', typeof users);
 
 	const indexOfLastItem = currentPage * itemsPerPage;
 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
