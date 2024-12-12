@@ -34,3 +34,20 @@ export const loadFromLocalStorage = (key) => {
     localStorage.clear();
   };
   
+
+  export const enqueueFavoriteAction = (action) => {
+    const queue = loadFromLocalStorage("favoriteQueue") || [];
+    queue.push(action);
+    saveToLocalStorage("favoriteQueue", queue);
+};
+
+export const dequeueFavoriteAction = () => {
+    const queue = loadFromLocalStorage("favoriteQueue") || [];
+    const action = queue.shift();
+    saveToLocalStorage("favoriteQueue", queue);
+    return action;
+};
+
+export const getFavoriteQueue = () => {
+    return loadFromLocalStorage("favoriteQueue") || [];
+};
