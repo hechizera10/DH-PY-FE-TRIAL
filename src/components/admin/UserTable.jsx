@@ -29,6 +29,8 @@ const UserTable = () => {
 		} else if (respuesta) {
 			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
 			console.log("caso malo");
+			console.log(respuesta);
+			console.log(respuesta[0]);
 			return respuesta[0];
 		} else {
 			// Si no es ninguno de los casos anteriores, retornar un array vacío
