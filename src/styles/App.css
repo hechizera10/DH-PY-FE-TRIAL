@@ -1,0 +1,134 @@
+:root{
+  --primary-color: #EFB810;
+ }
+ 
+ *{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  html, body {
+    overflow-x: hidden;
+  }
+  body{
+    background-color: var(--body-bg);
+    height: auto;
+    width: 100%;
+  }
+
+  header{
+    border-bottom: 1px solid ;
+  }
+  footer{
+    border-top: 1px solid ;
+  }
+  aside{
+    border-right: 1px solid ;
+  }
+
+  .tiny-text{
+    font-size: 0.5rem;
+  }
+
+  .profile,
+  .search-section{
+    background-image: url('https://res.cloudinary.com/dr1jbzn9r/image/upload/v1730406007/bg_search_wfisto.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#sidebar-nav:hover .sidebar-text{
+ display: block;
+}
+#sidebar-nav:hover .sidebar-list{
+  align-items: flex-start;
+  padding-left: 14px;
+}
+
+.sidebar-list>li:hover span, .sidebar-logout span:hover{
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* Estilos específicos para la página de políticas */
+.policy-container {
+  padding: 30px;
+  background-color: var(--body-bg);
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+  margin-top: 120px; 
+  z-index: 1; 
+}
+
+.policy-container h2 {
+  text-decoration: underline;  
+  font-size: 2rem;  
+  font-weight: bold;
+  color: var(--primary-color); 
+  margin-bottom: 30px;
+  text-align: center; 
+}
+
+.policy-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 20px;
+  padding-top: 20px;
+}
+
+@media (max-width: 768px) {
+  .policy-columns {
+    grid-template-columns: 1fr; 
+  }
+}
+
+.policy {
+  padding: 20px;
+  border: 1px solid #ddd; 
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.policy h3 {
+  font-size: 1.5rem;  
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.policy p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.whatsapp-icon {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 1000;
+}
+
+.whatsapp-icon img {
+  width: 50px;
+  height: 50px;
+}
+
+.whatsapp-message {
+  position: fixed;
+  bottom: 80px; 
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1001;
+  transition: opacity 0.5s ease;
+}
+
+.subheader{
+  z-index: 5;
+}
