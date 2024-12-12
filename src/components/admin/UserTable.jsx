@@ -24,9 +24,11 @@ const UserTable = () => {
 	const users = (() => {
 		if (Array.isArray(respuesta)) {
 			// Caso 1: La respuesta es un array (puede estar vacío o con elementos)
+			console.log("caso bueno");
 			return state.users;
 		} else if (respuesta) {
 			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
+			console.log("caso malo");
 			return state.users[0];
 		} else {
 			// Si no es ninguno de los casos anteriores, retornar un array vacío
