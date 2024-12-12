@@ -18,9 +18,10 @@ const UserTable = () => {
 
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
-	const respuesta = state.users 
-	console.log(respuesta);
+	const respuesta = '[ { "id": 1, "name": "admin", "lastname": "admin", "email": "admin@admin.com", "password": "$2a$10$KMTPnwuxgSoPIrRTPaNOS.j8ftVB.nbmtvEwUYCux7t.K99ewoPiS", "rol": "ADMIN", "obrasFavoritas": [ { "id": 1, "nombre": "Maria Elena Haydee", "fechaCreacion": "1111-11-11", "descripcion": "1111", "precioRenta": 11111, "disponibilidad": true, "tamano": "MEDIANO", "tecnicaObra": { "id": 1, "nombre": "Óleo sobre lienzo" }, "movimientoArtistico": { "id": 1, "nombre": "Movimiento", "descripcion": "PRUEBA", "imagen": { "id": 1, "nombre": "30WELL-ART-BRAIN-videoSixteenByNineJumbo1600", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734015477/artxp_d6dd427f-a4bf-4c85-891f-636b402504e0.jpg", "imagenId": "artxp_d6dd427f-a4bf-4c85-891f-636b402504e0" } }, "artista": { "id": 2, "nombre": "El Bosco" }, "imagenes": [ { "id": 2, "nombre": "PNG 800", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734017837/artxp_49a3e311-2fba-465f-baa5-f95360873c2a.png", "imagenId": "artxp_49a3e311-2fba-465f-baa5-f95360873c2a" } ] }, { "id": 2, "nombre": "Sifar", "fechaCreacion": "1111-11-11", "descripcion": "111", "precioRenta": 1111, "disponibilidad": true, "tamano": "MEDIANO", "tecnicaObra": { "id": 2, "nombre": "Óleo sobre tabla" }, "movimientoArtistico": { "id": 1, "nombre": "Movimiento", "descripcion": "PRUEBA", "imagen": { "id": 1, "nombre": "30WELL-ART-BRAIN-videoSixteenByNineJumbo1600", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734015477/artxp_d6dd427f-a4bf-4c85-891f-636b402504e0.jpg", "imagenId": "artxp_d6dd427f-a4bf-4c85-891f-636b402504e0" } }, "artista": { "id": 2, "nombre": "El Bosco" }, "imagenes": [ { "id": 3, "nombre": "images", "url": "http://res.cloudinary.com/dr1jbzn9r/image/upload/v1734019324/artxp_0bd3afc5-6cf8-44ed-80ae-6561ff28130a.jpg", "imagenId": "artxp_0bd3afc5-6cf8-44ed-80ae-6561ff28130a" } ] } ]{timestamp:2, error:"ok"}';
 
+	console.log(respuesta);
+	console.log(JSON.parse(respuesta))
 
 	const users = (() => {
 		if (Array.isArray(respuesta)) {
