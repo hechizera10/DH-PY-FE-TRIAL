@@ -18,11 +18,14 @@ const UserTable = () => {
 
 	const headers = ["ID", "Nombre", "Apellido", "Correo electrónico", "Rol"];
 
+	const respuesta = state.users + {prueba: "hola"};
+
+
 	const users = (() => {
-		if (Array.isArray(state.users)) {
+		if (Array.isArray(respuesta)) {
 			// Caso 1: La respuesta es un array (puede estar vacío o con elementos)
 			return state.users;
-		} else if (Array.isArray(state.users[0])) {
+		} else if (respuesta) {
 			// Caso 2: La respuesta es una concatenación de un array vacío seguido de un objeto
 			return state.users[0];
 		} else {
